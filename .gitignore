@@ -80,4 +80,5 @@ $RECYCLE.BIN/
 
 # Other
 .vs
-cachesim\Debug
+cachesim/Debug
+*.opendb
