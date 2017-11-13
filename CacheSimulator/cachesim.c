@@ -53,6 +53,7 @@ int main(int argc, char *argv[]) {
         printf("Cache Misses:  %d\n", d_cache.misses);
         printf("Cache Hit Rate: %f\n", d_cache.hitRate);
         printf("Cache Miss Rate: %f\n", d_cache.missRate);
+        printf("Cache Access Count %d\n", d_cache.accessCount);
         printf("\n");
     }
 
@@ -103,11 +104,9 @@ void direct_mapped_cache_access(struct direct_mapped_cache *cache, uint64_t addr
     cache->accessCount++;
     if (cache->valid_field[index] && cache->tag_field[index] == tag) { /* Cache hit */
         cache->hits++;
-        cache->hitRate = cache->hits / cache->accessCount;
         printf("Hit!\n");
     } else { /* Cache miss */
         cache->misses++;
-        cache->missRate = cache->misses / cache->accessCount;
         printf("Miss!\n");
         if (cache->valid_field[index] && cache->dirty_field[index]) { /* Write the cache block back to memory */
         }
@@ -115,5 +114,7 @@ void direct_mapped_cache_access(struct direct_mapped_cache *cache, uint64_t addr
         cache->valid_field[index] = 1;
         cache->dirty_field[index] = 0;
     }
+    cache->hitRate = (double)cache->hits / cache->accessCount;
+    cache->missRate = (double)cache->misses / cache->accessCount;
 }
 
