@@ -77,7 +77,3 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
-
-# Other
-.vs
-cachesim\Debug
