@@ -37,6 +37,7 @@ int main(int argc, char *argv[]) {
     }
     d_cache.hits = 0;
     d_cache.misses = 0;
+    d_cache.accessCount = 0;
 
     fp = fopen(trace_file_name, "r"); /* Opening the memory trace file */
 
@@ -50,6 +51,8 @@ int main(int argc, char *argv[]) {
         printf("==================================\n");
         printf("Cache Hits:    %d\n", d_cache.hits);
         printf("Cache Misses:  %d\n", d_cache.misses);
+        printf("Cache Hit Rate: %f\n", d_cache.hitRate);
+        printf("Cache Miss Rate: %f\n", d_cache.missRate);
         printf("\n");
     }
 
@@ -96,12 +99,15 @@ void direct_mapped_cache_access(struct direct_mapped_cache *cache, uint64_t addr
     uint64_t tag = block_addr >> (unsigned)log2(NUM_BLOCKS);
 
     printf("Memory address: %llu, Block address: %llu, Index: %llu, Tag: %llu ", address, block_addr, index, tag);
-
+    
+    cache->accessCount++;
     if (cache->valid_field[index] && cache->tag_field[index] == tag) { /* Cache hit */
-        cache->hits += 1;
+        cache->hits++;
+        cache->hitRate = cache->hits / cache->accessCount;
         printf("Hit!\n");
     } else { /* Cache miss */
-        cache->misses += 1;
+        cache->misses++;
+        cache->missRate = cache->misses / cache->accessCount;
         printf("Miss!\n");
         if (cache->valid_field[index] && cache->dirty_field[index]) { /* Write the cache block back to memory */
         }

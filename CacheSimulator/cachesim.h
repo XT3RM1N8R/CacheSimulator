@@ -28,6 +28,9 @@ struct direct_mapped_cache {
                                                  this field doesn't really matter */
     int hits;                          /* Hit count */
     int misses;                        /* Miss count */
+    double hitRate;                    /* Hit rate */
+    double missRate;                   /* Miss rate */
+    int accessCount;                   /* Total number of cache accesses */
 };
 
 
