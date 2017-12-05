@@ -82,3 +82,5 @@ $RECYCLE.BIN/
 .vs
 CacheSimulator/Debug
 *.opendb
+cachesim.pdb
+cachesim.ilk
