@@ -106,7 +106,7 @@ void direct_mapped_cache_access(struct direct_mapped_cache *cache, uint64_t addr
     
     cache->accessCount++;
     for (int blockNumber = 0; blockNumber < WAY_SIZE; blockNumber++) {
-      blockInSetIndex = blockInSetIndex + (blockNumber * NUM_SETS);
+      blockInSetIndex = firstBlockInSet + (blockNumber * NUM_SETS);
       if (cache->valid_field[blockInSetIndex] && cache->tag_field[blockInSetIndex] == tag) { /* Cache hit */
         cache->hits++;
         DebugPrint("Hit!\n");
@@ -116,18 +116,14 @@ void direct_mapped_cache_access(struct direct_mapped_cache *cache, uint64_t addr
         DebugPrint("Miss!\n");
         if (cache->valid_field[blockInSetIndex] && cache->dirty_field[blockInSetIndex]) { /* Write the cache block back to memory */
         }
-        cache->tag_field[blockInSetIndex] = tag;
-        cache->valid_field[blockInSetIndex] = 1;
-        cache->dirty_field[blockInSetIndex] = 0;
         miss = true;
       }
     }
     replaced = false;
     if (miss) {
       cache->misses++;
-      blockInSetIndex = firstBlockInSet;
       for (int blockNumber = 0; blockNumber < WAY_SIZE; blockNumber++) {
-        blockInSetIndex = blockInSetIndex + (blockNumber * NUM_SETS);
+        blockInSetIndex = firstBlockInSet + (blockNumber * NUM_SETS);
         if (!cache->valid_field[blockInSetIndex]) {
           cache->tag_field[blockInSetIndex] = tag;
           cache->valid_field[blockInSetIndex] = 1;
@@ -137,12 +133,9 @@ void direct_mapped_cache_access(struct direct_mapped_cache *cache, uint64_t addr
         }
       }
       if (!replaced) {
-        blockInSetIndex = firstBlockInSet;
         for (int blockNumber = 0; blockNumber < WAY_SIZE; blockNumber++) {
-          blockInSetIndex = blockInSetIndex + (blockNumber * NUM_SETS);
-          if (!cache->valid_field[blockInSetIndex]) {
-            cache->valid_field[blockInSetIndex] = 0;
-          }
+          blockInSetIndex = firstBlockInSet + (blockNumber * NUM_SETS);
+          cache->valid_field[blockInSetIndex] = 0;
         }
         cache->tag_field[firstBlockInSet] = tag;
         cache->valid_field[firstBlockInSet] = 1;

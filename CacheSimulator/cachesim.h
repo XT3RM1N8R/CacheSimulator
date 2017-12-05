@@ -7,7 +7,7 @@
 
 #define BLOCK_SIZE  64        /* Cache block size (or cache line size) in bytes \\
                                  (must be power of 2). 4 Bytes = 1 Word */
-#define WAY_SIZE    1         /* Associativity; 1-way = direct-mapped */
+#define WAY_SIZE    512         /* Associativity; 1-way = direct-mapped */
 #define CACHE_SIZE  32768     /* Cache capacity in bytes (must be power of 2) */
 
 #define NUM_BLOCKS  (CACHE_SIZE / BLOCK_SIZE)
