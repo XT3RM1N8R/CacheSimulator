@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <string.h>
 #include <math.h>
 #include "cachesim.h"
@@ -90,7 +91,7 @@ uint64_t convert_address(char memory_addr[]) { /* Converts the physical 32-bit a
         }
         i++;
     }
-    printf("%s converted to %llu\n", memory_addr, binary);
+    DebugPrint("%s converted to %llu\n", memory_addr, binary);
     return binary;
 }
 
@@ -98,21 +99,55 @@ void direct_mapped_cache_access(struct direct_mapped_cache *cache, uint64_t addr
     uint64_t block_addr = address >> (unsigned)log2(BLOCK_SIZE);
     uint64_t index = block_addr % NUM_BLOCKS;
     uint64_t tag = block_addr >> (unsigned)log2(NUM_BLOCKS);
-
-    printf("Memory address: %llu, Block address: %llu, Index: %llu, Tag: %llu ", address, block_addr, index, tag);
+    uint64_t firstBlockInSet = index % NUM_SETS;
+    uint64_t blockInSetIndex = firstBlockInSet;
+    bool miss, replaced;
+    DebugPrint("Memory address: %llu, Block address: %llu, Index: %llu, Tag: %llu ", address, block_addr, index, tag);
     
     cache->accessCount++;
-    if (cache->valid_field[index] && cache->tag_field[index] == tag) { /* Cache hit */
+    for (int blockNumber = 0; blockNumber < WAY_SIZE; blockNumber++) {
+      blockInSetIndex = blockInSetIndex + (blockNumber * NUM_SETS);
+      if (cache->valid_field[blockInSetIndex] && cache->tag_field[blockInSetIndex] == tag) { /* Cache hit */
         cache->hits++;
-        printf("Hit!\n");
-    } else { /* Cache miss */
-        cache->misses++;
-        printf("Miss!\n");
-        if (cache->valid_field[index] && cache->dirty_field[index]) { /* Write the cache block back to memory */
+        DebugPrint("Hit!\n");
+        miss = false;
+        break;
+      } else { /* Cache miss */
+        DebugPrint("Miss!\n");
+        if (cache->valid_field[blockInSetIndex] && cache->dirty_field[blockInSetIndex]) { /* Write the cache block back to memory */
         }
-        cache->tag_field[index] = tag;
-        cache->valid_field[index] = 1;
-        cache->dirty_field[index] = 0;
+        cache->tag_field[blockInSetIndex] = tag;
+        cache->valid_field[blockInSetIndex] = 1;
+        cache->dirty_field[blockInSetIndex] = 0;
+        miss = true;
+      }
+    }
+    replaced = false;
+    if (miss) {
+      cache->misses++;
+      blockInSetIndex = firstBlockInSet;
+      for (int blockNumber = 0; blockNumber < WAY_SIZE; blockNumber++) {
+        blockInSetIndex = blockInSetIndex + (blockNumber * NUM_SETS);
+        if (!cache->valid_field[blockInSetIndex]) {
+          cache->tag_field[blockInSetIndex] = tag;
+          cache->valid_field[blockInSetIndex] = 1;
+          cache->dirty_field[blockInSetIndex] = 0;
+          replaced = true;
+          break;
+        }
+      }
+      if (!replaced) {
+        blockInSetIndex = firstBlockInSet;
+        for (int blockNumber = 0; blockNumber < WAY_SIZE; blockNumber++) {
+          blockInSetIndex = blockInSetIndex + (blockNumber * NUM_SETS);
+          if (!cache->valid_field[blockInSetIndex]) {
+            cache->valid_field[blockInSetIndex] = 0;
+          }
+        }
+        cache->tag_field[firstBlockInSet] = tag;
+        cache->valid_field[firstBlockInSet] = 1;
+        cache->dirty_field[firstBlockInSet] = 0;
+      }
     }
     cache->hitRate = (double)cache->hits / cache->accessCount;
     cache->missRate = (double)cache->misses / cache->accessCount;

@@ -13,9 +13,11 @@
 #define NUM_BLOCKS  (CACHE_SIZE / BLOCK_SIZE)
 #define NUM_SETS    (NUM_BLOCKS / WAY_SIZE)
 
-#define DBG                   /* Define this in order to enable compilation of debug printing to console */
-#ifndef DBG                   /* This essentially removes all calls to printf(x) before compiling */
-  #define printf(x) /* Nothing */ 
+//#define DBG                   /* Define this in order to enable compilation of debug printing to console */
+#ifdef DBG                   /* This essentially removes all calls to DebugPrint(x) before compiling, if DBG is not defined */
+  #define DebugPrint(x) print(x)
+#else
+  #define DebugPrint(x) /* Nothing */ 
 #endif
 
 /*The data structure of direct-mapped cache*/
