@@ -149,7 +149,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="cachesim.c" />
+    <ClCompile Include="cachesim.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cachesim.h" />
